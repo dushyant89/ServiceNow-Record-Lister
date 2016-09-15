@@ -1,0 +1,13 @@
+{
+    "name" : "ServiceNow Utility",
+    "version" : "1.0",
+    "description" : "An extension which lists all crucial records on a page",
+    "permissions": [
+        "tabs", "http://*/*", "https://*/*"
+    ],
+    "browser_action": {
+        "default_icon": "icon.png",
+        "default_popup": "popup.html"
+    },
+    "manifest_version": 2
+}

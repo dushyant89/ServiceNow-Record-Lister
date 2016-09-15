@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- Style Includes -->
+        <link href="stylesheets/materialize.css" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <!-- Script Includes -->
+        <script type="text/javascript" src="scripts/jquery.min.js"></script>
+        <script src="scripts/materialize.min.js" type="text/javascript"></script>
+        <script src="scripts/popup.js" type="text/javascript"></script>
+        <title>Servicenow Record Lister</title>
+    </head>
+    <body style="width:500px; height:300px; overflow:scroll;">
+        <div id="mainContent">
+            <div id="header" class="row bg-dark">
+                <div class="col s4 space-top-md">
+                    <img width="150px" src="logo_service-now_light.png" />
+                </div>
+                <div class="col s8">
+                    <h5 class="text-primary"> Record Lister </h5>
+                </div>
+            </div>
+            <div id="progress" class="row hide">
+                <img src="rolling.gif" />
+            </div>
+            <div id="notification" class="row hide">
+                <div class="col s2">
+                    <i id="notificationIcon" class="medium material-icons"></i>
+                </div>
+                <div class="col s10">
+                    <p id="notificationMessage" class="text-lg text-secondary"> </p>
+                </div>
+            </div>
+            <div class="row" id="formContainer">
+                <form id="userForm" class="col s12">
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <i class="material-icons prefix">account_circle</i>
+                            <input required placeholder="Username" id="username" type="text" class="validate">
+                            <label for="username">Username</label>
+                        </div>
+                    </div>        
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <i class="material-icons prefix">vpn_key</i>
+                            <input required id="password" type="password" class="validate">
+                            <label for="password">Password</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <input type="checkbox" id="rememberMe" />
+                            <label for="rememberMe">Remember Me</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s11 offset-s1">
+                            <button class="btn" type="submit" name="action">
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div id="listContainer" class="row hide text-reg">
+                
+            </div>
+        </div>
+  </body>
+</html>
