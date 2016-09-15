@@ -1,5 +1,7 @@
 # Servicenow-Record-Lister
 
+[![Issue Count](https://codeclimate.com/github/dushyant89/Servicenow-Record-Lister/badges/issue_count.svg)](https://codeclimate.com/github/dushyant89/Servicenow-Record-Lister)
+
 This project is about listing important records in *servicenow* in a chrome extension. The type of records listed in the extension are as below
 * Problem Tasks
 * Knowledge Articles
