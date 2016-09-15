@@ -1,2 +1,4 @@
 # ignore data store files
 .DS_Store
+# ignore the patch files
+*.patch
