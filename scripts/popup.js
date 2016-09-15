@@ -1,3 +1,4 @@
+// Adding a listener for receipt of a message from a script.
 chrome.runtime.onMessage.addListener(function(request, sender) {
     if ('getSource' === request.action) {
         prepareHTML(request.source);
@@ -23,6 +24,10 @@ chrome.tabs.getSelected(null, function(tab) {
     origin = protocol + '://' + domain;
 });
 
+/*
+    This method prepares the html from the raw source which is passed.
+    Regular expression look for records from the raw source.
+*/
 function prepareHTML(source) {
     $("#progress").removeClass('hide');
     var configs = [
@@ -158,6 +163,10 @@ function prepareListHeader(listHeaderText) {
     return listHeader;
 }
 
+/*
+    This method prepares a list element part of an unordered list. Each record type is a
+    `ul` and each record is a `li`.
+*/
 function prepareListElements(ul, items, config) {
     var items_map = [];
 
@@ -257,6 +266,10 @@ function executeScript() {
     });
 }
 
+/*
+    Method which shows the success notification and calls the callback
+    after the notification fades away.
+*/
 function showSuccessNotification(callback) {
     $("#notificationIcon").addClass('success')
         .html('verified_user');
@@ -266,6 +279,9 @@ function showSuccessNotification(callback) {
     $("#notification").removeClass('hide').delay(600).fadeOut(300, callback);
 }
 
+/*
+    Method which shows the error notification.    
+*/
 function showErrorNotification() {
     $("#notificationIcon").addClass('error').html('error');
     $("#notificationMessage").html('Invalid credentials!');
@@ -273,6 +289,10 @@ function showErrorNotification() {
     $("#notification").removeClass('hide').delay(1000).fadeOut(300);
 }
 
+/*
+    This method takes the user credentials and just fires an ajax call to
+    some API just to see whether the credentials are correct or not.
+*/
 function verifyUser() {
     // fire an ajax to the servicenow API to verify the credentials.
     $.ajax({
@@ -283,7 +303,7 @@ function verifyUser() {
         },
         dataType : 'json',
         success : function (data) {
-            // hide the form.
+            // hide the form, show success notification and execute the script.
             $("#formContainer").hide();
             showSuccessNotification(executeScript);
         },
@@ -292,7 +312,10 @@ function verifyUser() {
         }
     });
 }
-
+/*
+    This method is used when a person is trying to use the extension on
+    a non service-now.com domain.
+*/
 function showNoServiceNotification() {
     $("#notificationIcon").addClass('error').html('report_problem');
     $("#notificationMessage").html('App only works for service-now domain!');
@@ -301,16 +324,16 @@ function showNoServiceNotification() {
     $("#notification").removeClass('hide');
 }
 
-// Event handlers when the DOM is ready.
+// When the DOM is ready, then do stuff.
 $(function() {
     // When the DOM is ready then check for whether we have the
-    // credentials saved or not.
+    // credentials saved or not in the local storage.
     if (localStorage.getItem('username') && localStorage.getItem('password')) {
         $("#username").val(localStorage.getItem('username'));
         $("#password").val(localStorage.getItem('password'));
         $("#rememberMe")[0].checked = true;
     }
-    
+    // When the log-in form is submitted.
     $("#userForm").submit(function (event) {
         // prevent the usual submission of the form.
         event.preventDefault();

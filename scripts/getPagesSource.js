@@ -1,45 +1,23 @@
-// @author Rob W <http://stackoverflow.com/users/938089/rob-w>
-// Demo: var serialized_html = DOMtoString(document);
-
-/*function DOMtoString(document_root) {
-    var html = '',
-        node = document_root.firstChild;
-    while (node) {
-        switch (node.nodeType) {
-            case Node.ELEMENT_NODE:
-                html += node.outerHTML;
-                break;
-            case Node.TEXT_NODE:
-                html += node.nodeValue;
-                break;
-            case Node.CDATA_SECTION_NODE:
-                html += '<![CDATA[' + node.nodeValue + ']]>';
-                break;
-            case Node.COMMENT_NODE:
-                html += '<!--' + node.nodeValue + '-->';
-                break;
-            case Node.DOCUMENT_TYPE_NODE:
-                // (X)HTML documents are identified by public identifiers
-                html += "<!DOCTYPE " + node.name + (node.publicId ? ' PUBLIC "' + node.publicId + '"' : '') + (!node.publicId && node.systemId ? ' SYSTEM' : '') + (node.systemId ? ' "' + node.systemId + '"' : '') + '>\n';
-                break;
-        }
-        node = node.nextSibling;
-    }
-    return html;
-}*/
 var content = '';
+
+/*
+    Recursive function which prases the dom to find out text nodes
+    they can contain the records which we are looking for.
+*/
 function parse(node) {
     if (node) {
         var childNodes = node.childNodes;
         for (var i=0; i < childNodes.length; i++) {
             var childNode = childNodes[i];
             if (Node.ELEMENT_NODE === childNode.nodeType) {
-                // check for iframe
+                /*
+                    Check for iframe and if present then consider it as a
+                    html document and drill down further.
+                */
                 if (childNode.contentDocument &&
                     childNode.contentDocument.firstChild &&
                     childNode.contentDocument.firstChild.nextSibling
                 ) {
-                    //console.log(childNode.contentDocument.firstChild.nextSibling);
                     parse(childNode.contentDocument.firstChild.nextSibling);
                 } else {
                     parse(childNode);
@@ -55,5 +33,5 @@ function parse(node) {
 
 chrome.runtime.sendMessage({
     action: "getSource",
-    source: parse(document.firstChild.nextSibling)
+    source: parse(document.firstChild.nextSibling) // pass the html node of the document.
 });
