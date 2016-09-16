@@ -184,9 +184,7 @@ function prepareListElements(ul, items, config) {
                     url : apiUrl,
                     async : true,
                     contentType : 'application/json',
-                    headers : {
-                        'Authorization' : 'Basic ' + btoa($("#username").val() + ':' + $("#password").val())
-                    },
+                    headers : prepareAuthorizationHeader(),
                     dataType : 'json',
                     success : function (data) {
                         var results = data.result;
@@ -243,6 +241,7 @@ function prepareListElements(ul, items, config) {
         }
     }
 }
+
 /*
     This method executes a script in the background which
     fetches the page source.
@@ -293,9 +292,7 @@ function verifyUser() {
     $.ajax({
         url : origin + '/api/now/table/sys_user?sysparm_fields=&sysparm_limit=1',
         contentType : 'application/json',
-        headers : {
-            'Authorization' : 'Basic ' + btoa($("#username").val() + ':' + $("#password").val())
-        },
+        headers : prepareAuthorizationHeader(),
         dataType : 'json',
         success : function (data) {
             // hide the form, show success notification and execute the script.
@@ -317,6 +314,10 @@ function showNoServiceNotification() {
     // Show the message and hide after a second.
     $("#formContainer").hide();
     $("#notification").removeClass('hide');
+}
+
+function prepareAuthorizationHeader() {
+    return { 'Authorization' : 'Basic ' + btoa($("#username").val() + ':' + $("#password").val()) };
 }
 
 // When the DOM is ready, then do stuff.
