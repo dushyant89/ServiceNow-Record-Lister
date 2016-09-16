@@ -322,13 +322,6 @@ function prepareAuthorizationHeader() {
 
 // When the DOM is ready, then do stuff.
 $(function() {
-    // When the DOM is ready then check for whether we have the
-    // credentials saved or not in the local storage.
-    if (localStorage.getItem('username') && localStorage.getItem('password')) {
-        $("#username").val(localStorage.getItem('username'));
-        $("#password").val(localStorage.getItem('password'));
-        $("#rememberMe")[0].checked = true;
-    }
     // When the log-in form is submitted.
     $("#userForm").submit(function (event) {
         // prevent the usual submission of the form.
@@ -336,13 +329,6 @@ $(function() {
         // The extension should work only on the below pattern of domain name.
         var pattern = /^https?:\/\/([a-zA-Z\d-]+\.){0,}service-now\.com/g;
         if (origin.match(pattern)) {
-            // check if the user has selected the remember me checkbox. If yes
-            // then we need to store the credentials in browser session storage
-            // so as to avoid any re-logins.
-            if ($("#rememberMe")[0].checked) {
-                localStorage.setItem('username', $("#username").val());
-                localStorage.setItem('password', $("#password").val());
-            }
             verifyUser();
         } else {
             showNoServiceNotification();
