@@ -243,15 +243,10 @@ function prepareListElements(ul, items, config) {
         }
     }
 }
-
-function prepareNotFoundElement(message) {
-    var li = document.createElement('li');
-    li.setAttribute('class', 'collection-item red lighten-4');
-    li.innerHTML = message;
-
-    return li;
-}
-
+/*
+    This method executes a script in the background which
+    fetches the page source.
+*/
 function executeScript() {
     listContainer = $('#listContainer');
 
