@@ -147,7 +147,7 @@ function prepareHTML(source) {
         var items = source.match(config.pattern);
 
         if (items) {
-            prepareListElements(itemUl, items, config);
+            prepareResultsList(itemUl, items, config);
             itemListContainer.appendChild(itemUl);
             listContainer.append(itemListContainer);
         }
@@ -170,79 +170,83 @@ function prepareListHeader(listHeaderText) {
     This method prepares a list element part of an unordered list. Each record type is a
     `ul` and each record is a `li`.
 */
-function prepareListElements(ul, items, config) {
+function prepareResultsList(ul, items, config) {
     var items_map = [];
 
-    for (var i=0; i < items.length; i++) {
-        if (undefined === items_map[items[i]]) {
+    items.forEach(function (item, index, items) {
+        if (undefined === items_map[item]) {
             // fire up an ajax request to fetch data about the item found.
             var apiUrl = origin + '/api/now/table/' + config.tableName + '?sysparm_query=number='
-                + items[i] + '&sysparm_fields=' + config.fields + '&sysparm_limit=' + config.limit;
-            
-            // putting stuff inside a self executing function
-            // so that the ajax closure takes the latest value from
-            // the items array.
-            (function (item) {
-                $.ajax({
-                    url : apiUrl,
-                    async : true,
-                    contentType : 'application/json',
-                    headers : prepareAuthorizationHeader(),
-                    dataType : 'json',
-                    success : function (data) {
-                        var results = data.result;
-                        if (0 < results.length) {
-                            var li = document.createElement('li');
-                            li.setAttribute('class', 'collection-item blue lighten-5');
-                            // Create the item link.
-                            var link = document.createElement('a');
-                            link.setAttribute('href', config.url + item);
-                            link.setAttribute('target', '_blank');
-                            link.innerHTML = item;
-                            // Add the link to the li.
-                            li.appendChild(link);
-                            for (var j=0; j < results.length; j++) {
-                                for (var field in results[j]) {
-                                    if (results[j].hasOwnProperty(field)) {
-                                        // Prepare the header of the value to be displayed.
-                                        var parHeading = document.createElement('p');
-                                        parHeading.setAttribute('class', 'text-secondary');
-                                        parHeading.innerHTML = '<b>' + config.labelsMap[field] + '</b>';
-                                        li.appendChild(parHeading);
-
-                                        var par = document.createElement('p');
-                                        par.setAttribute('class', 'text-secondary');
-                                        if (0 < results[j][field].length) {
-                                            // check if we have a mapping set for displaying
-                                            // the values.
-                                            if (config.fieldsMap) {
-                                                // check if we have a mapping for this
-                                                // specific field.
-                                                if (config.fieldsMap[field]) {
-                                                    par.innerHTML = config.fieldsMap[field][results[j][field]];
-                                                } else {
-                                                    par.innerHTML = results[j][field];
-                                                }
-                                            } else {
-                                                par.innerHTML = results[j][field];
-                                            }
-                                        } else {
-                                            // If the content is empty then display dashes instead.
-                                            par.innerHTML = '-----';
-                                        }
-                                        li.appendChild(par);
-                                    }
-                                }
-                            }
-                            ul.appendChild(li);
-                        }
+                + item + '&sysparm_fields=' + config.fields + '&sysparm_limit=' + config.limit;
+            $.ajax({
+                url : apiUrl,
+                async : true,
+                contentType : 'application/json',
+                headers : prepareAuthorizationHeader(),
+                dataType : 'json',
+                success : function (data) {
+                    var results = data.result;
+                    if (0 < results.length) {
+                        ul.appendChild(prepareResultsListItem(
+                            config,
+                            item,
+                            results
+                        ));
                     }
-                });
-            }) (items[i]);
+                }
+            });
             // Add the ids to the map to avoid duplicates.
-            items_map[items[i]] = 1;
+            items_map[item] = 1;
+        }
+    });
+}
+
+function prepareResultsListItem(config, item, results) {
+    var li = document.createElement('li');
+    li.setAttribute('class', 'collection-item blue lighten-5');
+    // Create the item link.
+    var link = document.createElement('a');
+    link.setAttribute('href', config.url + item);
+    link.setAttribute('target', '_blank');
+    link.innerHTML = item;
+    // Add the link to the li.
+    li.appendChild(link);
+    for (var j=0; j < results.length; j++) {
+        for (var field in results[j]) {
+            if (results[j].hasOwnProperty(field)) {
+                // Prepare the header of the value to be displayed.
+                var parHeading = document.createElement('p');
+                parHeading.setAttribute('class', 'text-secondary');
+                parHeading.innerHTML = '<b>' + config.labelsMap[field] + '</b>';
+                li.appendChild(parHeading);
+
+                var par = document.createElement('p');
+                par.setAttribute('class', 'text-secondary');
+                // check for empty result value.
+                if (0 < results[j][field].length) {
+                    // check if we have a mapping set for displaying
+                    // the values.
+                    if (config.fieldsMap) {
+                        // check if we have a mapping for this
+                        // specific field.
+                        if (config.fieldsMap[field]) {
+                            par.innerHTML = config.fieldsMap[field][results[j][field]];
+                        } else {
+                            par.innerHTML = results[j][field];
+                        }
+                    } else {
+                        par.innerHTML = results[j][field];
+                    }
+                } else {
+                    // If the content is empty then display dashes instead.
+                    par.innerHTML = '-----';
+                }
+                li.appendChild(par);
+            }
         }
     }
+
+    return li;
 }
 
 /*
@@ -274,7 +278,7 @@ function showSuccessNotification(callback) {
 }
 
 /*
-    Method which shows the error notification.    
+    Method which shows the error notifications   
 */
 function showErrorNotification(message, persistent, iconName) {
     $("#notificationIcon").addClass('error').html(iconName ? iconName : 'error');
