@@ -30,10 +30,11 @@ chrome.tabs.getSelected(null, function(tab) {
 */
 function prepareHTML(source) {
     $("#progress").removeClass('hide');
+    var listContainer = $("#listContainer");
     var configs = [
         {
             header : 'Knowledge Articles',
-            pattern : /KB\d{7}/g,
+            pattern : /KB\d{6,7}/g,
             url : origin + '/kb_view.do?sysparm_article=',
             tableName : 'kb_knowledge',
             fields : 'short_description',
@@ -44,7 +45,7 @@ function prepareHTML(source) {
         },
         {
             header : 'Problems',
-            pattern : /PRB\d{6}/g,
+            pattern : /PRB\d{6,7}/g,
             url : origin + '/problem.do?sysparm_query=number=',
             tableName : 'problem',
             fields : 'problem_state,description,priority',
@@ -74,7 +75,7 @@ function prepareHTML(source) {
         },
         {
             header : 'Tasks',
-            pattern : /INT\d{7}/g,
+            pattern : /INT\d{6,7}/g,
             url : origin + '/incident.do?sysparm_query=number=',
             tableName : 'incident',
             fields : 'severity,description',
@@ -86,7 +87,7 @@ function prepareHTML(source) {
         },
         {
             header : 'Fix Targets',
-            pattern : /FIX\d{7}/g,
+            pattern : /FIX\d{6,7}/g,
             url : origin + '/u_fix_target.do?sysparm_query=number=',
             tableName : 'u_fix_target',
             fields : 'description,state',
@@ -108,7 +109,7 @@ function prepareHTML(source) {
         },
         {
             header : 'Stories',
-            pattern : /STRY\d{7}/g,
+            pattern : /STRY\d{6,7}/g,
             url : origin + '/rm_story.do?sysparm_query=number=',
             tableName : 'rm_story',
             fields : 'description,state',
@@ -151,8 +152,10 @@ function prepareHTML(source) {
             listContainer.append(itemListContainer);
         }
     }
+    if (0 === listContainer.children().length) {
+        showErrorNotification('No records found on the page', true);
+    }
     $("#progress").hide();
-    listContainer.removeClass('hide');
 }
 
 function prepareListHeader(listHeaderText) {
@@ -247,15 +250,12 @@ function prepareListElements(ul, items, config) {
     fetches the page source.
 */
 function executeScript() {
-    listContainer = $('#listContainer');
-
     chrome.tabs.executeScript(null, {
         file: 'scripts/getPagesSource.js'
     }, function() {
         // If you try and inject into an extensions page or the webstore/NTP you'll get an error
         if (chrome.runtime.lastError) {
-            listContainer.addClass('red lighten-4');
-            listContainer.html('There was an error injecting script : \n' + chrome.runtime.lastError.message);
+            showErrorNotification('There was an error injecting script : \n' + chrome.runtime.lastError.message, true);
         }
     });
 }
@@ -270,17 +270,22 @@ function showSuccessNotification(callback) {
     $("#notificationMessage").html('Success!');
     // Show the message and hide after a second.
     // process the page source for records.
-    $("#notification").removeClass('hide').delay(600).fadeOut(300, callback);
+    $("#notification").show().delay(600).fadeOut(300, callback);
 }
 
 /*
     Method which shows the error notification.    
 */
-function showErrorNotification() {
-    $("#notificationIcon").addClass('error').html('error');
-    $("#notificationMessage").html('Invalid credentials!');
-    // Show the message and hide after a second.
-    $("#notification").removeClass('hide').delay(1000).fadeOut(300);
+function showErrorNotification(message, persistent, iconName) {
+    $("#notificationIcon").addClass('error').html(iconName ? iconName : 'error');
+    $("#notificationMessage").html(message);
+    
+    if (persistent) {
+        $("#notification").show();
+    } else {
+        // Show the message and hide after a second.
+        $("#notification").show().delay(1000).fadeOut(300);
+    }
 }
 
 /*
@@ -300,20 +305,9 @@ function verifyUser() {
             showSuccessNotification(executeScript);
         },
         error : function (error) {
-            showErrorNotification();
+            showErrorNotification('Invalid credentials!', true);
         }
     });
-}
-/*
-    This method is used when a person is trying to use the extension on
-    a non service-now.com domain.
-*/
-function showNoServiceNotification() {
-    $("#notificationIcon").addClass('error').html('report_problem');
-    $("#notificationMessage").html('App only works for service-now domain!');
-    // Show the message and hide after a second.
-    $("#formContainer").hide();
-    $("#notification").removeClass('hide');
 }
 
 function prepareAuthorizationHeader() {
@@ -331,7 +325,7 @@ $(function() {
         if (origin.match(pattern)) {
             verifyUser();
         } else {
-            showNoServiceNotification();
+            showErrorNotification('App only works for *.service-now domains!', true, 'report_problem');
         }
     });
 });
