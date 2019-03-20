@@ -10,7 +10,7 @@ This project is about listing important records in *servicenow* in a chrome exte
 * Tasks
 * Fix Targets
 
-## How does it works
+## How does it work
 * After you have installed the extension go to any page on service-now.com, let's say hi.service-now.com or any of the nightly instances as well.
 * Click on the extension and a pop-up will appear.
 * In the log-in form inside the popup, enter the credentials which are used to login to *hi.service-now.com* or the specific instance being used.
